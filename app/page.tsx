@@ -1,65 +1,124 @@
-import Image from "next/image";
+"use client";
+
+import { Upload, BrainCircuit, Play, Table } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen bg-blue-50 p-8">
+      {/* TITLE */}
+      <div className="max-w-7xl mx-auto mb-8">
+        <div className="flex items-center gap-3">
+          <div className="bg-blue-600 text-white p-3 rounded-2xl">
+            <BrainCircuit size={30} />
+          </div>
+
+          <div>
+            <h1 className="text-4xl font-bold text-blue-900">
+              Missing Data Imputation
+            </h1>
+
+            <p className="text-blue-700 mt-1">
+              Fill missing values using machine learning models
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {/* MAIN LAYOUT */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* LEFT PANEL */}
+        <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+          {/* INPUT TITLE */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-blue-900">Input</h2>
+
+            <p className="text-blue-600">Upload CSV dataset and select model</p>
+          </div>
+
+          {/* UPLOAD */}
+          <div className="mb-6">
+            <label className="border-2 border-dashed border-blue-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition bg-blue-50">
+              <Upload size={40} className="text-blue-600 mb-3" />
+
+              <p className="font-semibold text-blue-900">Upload CSV File</p>
+
+              <p className="text-sm text-blue-600 mt-1">
+                Click to upload dataset
+              </p>
+
+              <input type="file" accept=".csv" className="hidden" />
+            </label>
+          </div>
+
+          {/* MODEL SELECT */}
+          <div className="mb-6">
+            <label className="block text-blue-900 font-semibold mb-3">
+              Select Imputation Model
+            </label>
+
+            <select className="w-full border border-blue-200 rounded-2xl p-4 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+              <option>Random Forest</option>
+
+              <option>XGBoost</option>
+
+              <option>CatBoost</option>
+            </select>
+          </div>
+
+          {/* RUN BUTTON */}
+          <button className="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2">
+            <Play size={18} />
+            Run Imputation
+          </button>
         </div>
-      </main>
-    </div>
+
+        {/* RIGHT PANEL */}
+        <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+          {/* OUTPUT TITLE */}
+          <div className="flex items-center gap-2 mb-6">
+            <Table className="text-blue-600" />
+
+            <div>
+              <h2 className="text-2xl font-bold text-blue-900">Output</h2>
+
+              <p className="text-blue-600">Result table after imputation</p>
+            </div>
+          </div>
+
+          {/* TABLE */}
+          <div className="overflow-auto rounded-2xl border border-blue-100">
+            <table className="w-full border-collapse">
+              <thead className="bg-blue-100">
+                <tr>
+                  <th className="p-4 text-left text-blue-900">Age</th>
+
+                  <th className="p-4 text-left text-blue-900">Salary</th>
+
+                  <th className="p-4 text-left text-blue-900">Rating</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr className="border-t border-blue-100">
+                  <td className="p-4">25</td>
+
+                  <td className="p-4 bg-yellow-100 font-semibold">4820</td>
+
+                  <td className="p-4">4.5</td>
+                </tr>
+
+                <tr className="border-t border-blue-100">
+                  <td className="p-4">30</td>
+
+                  <td className="p-4">5000</td>
+
+                  <td className="p-4 bg-yellow-100 font-semibold">4.8</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }
