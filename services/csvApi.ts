@@ -1,42 +1,68 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  createApi,
+  fetchBaseQuery,
+} from "@reduxjs/toolkit/query/react";
 
-export interface MissingCell {
+export interface ImputedCell {
   row: number;
   column: string;
 }
 
 export interface CsvResponse {
-
   columns: string[];
+  rows: Record<string, any>[];
+  imputedCells: ImputedCell[];
+}
 
-  rows: Record<string, string>[];
-
-  missingCells: MissingCell[];
-
+export interface ImputeRequest {
+  file: File;
+  model: string;
 }
 
 export const csvApi = createApi({
   reducerPath: "csvApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3001",
+    baseUrl: "http://localhost:8000",
   }),
 
   endpoints: (builder) => ({
-    uploadCsv: builder.mutation<CsvResponse, File>({
-      query: (file) => {
-        const formData = new FormData();
 
-        formData.append("file", file);
+    uploadCsv: builder.mutation<
+      CsvResponse,
+      ImputeRequest
+    >({
+
+      query: ({
+        file,
+        model,
+      }) => {
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "file",
+          file
+        );
+
+        formData.append(
+          "model",
+          model
+        );
 
         return {
-          url: "/csv/upload",
+          url: "/impute",
           method: "POST",
           body: formData,
         };
+
       },
+
     }),
+
   }),
+
 });
 
 export const {

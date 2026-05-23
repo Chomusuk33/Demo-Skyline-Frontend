@@ -23,6 +23,9 @@ export default function Home() {
 
   const [file, setFile] =
     useState<File | null>(null);
+  
+  const [model, setModel] =
+    useState("rf");
 
   const [
     uploadCsv,
@@ -38,10 +41,33 @@ export default function Home() {
   ========================================
   */
 
-  const handleUpload = async () => {
-    if (!file) return;
-    await uploadCsv(file);
-  };
+  const handleUpload =
+    async () => {
+
+      if (!file) return;
+
+      try {
+
+        await uploadCsv({
+          file,
+          model,
+        }).unwrap();
+
+      }
+      catch (error) {
+
+        console.log("ERROR:", error);
+
+        console.log(
+          JSON.stringify(
+            error,
+            null,
+            2
+          )
+        );
+
+      }
+    };
 
   /*
   ========================================
@@ -166,6 +192,55 @@ export default function Home() {
           </div>
 
           {/* ========================================
+            DROPDOWN MODEL SELECTION
+          ======================================== */}     
+          <div className="mb-6">
+
+            <label
+              className="
+                block
+                text-blue-900
+                font-semibold
+                mb-2
+              "
+            >
+              Select Model
+            </label>
+
+            <select
+              value={model}
+              onChange={(e) =>
+                setModel(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                border
+                border-blue-200
+                rounded-2xl
+                p-3
+                bg-white
+              "
+            >
+
+              <option value="rf">
+                Random Forest
+              </option>
+
+              <option value="catboost">
+                CatBoost
+              </option>
+
+              <option value="xgboost">
+                XGBoost
+              </option>
+
+            </select>
+
+          </div>
+
+          {/* ========================================
               UPLOAD BUTTON
           ======================================== */}
 
@@ -179,8 +254,8 @@ export default function Home() {
 
             {/* loading text */}
             {isLoading
-              ? "Uploading..."
-              : "Upload CSV"}
+              ? "Running..."
+              : "Run Imputation"}
 
           </button>
 
@@ -245,6 +320,15 @@ export default function Home() {
 
                 </div>
 
+                {/* MODEL */}
+                <div className="bg-green-50 px-4 py-2 rounded-xl">
+
+                  Model:
+                  {" "}
+                  {model.toUpperCase()}
+
+                </div>
+
               </div>
 
               {/* ========================================
@@ -288,12 +372,12 @@ export default function Home() {
                               /*
                               CHECK MISSING CELL
                               */
-                              const isMissing =
-                                data.missingCells.some(
+                              const isImputed =
+                                data.imputedCells.some(
                                   (cell) =>
                                     cell.row === index &&
                                     cell.column === column
-                                );
+                                ) ?? false;
 
                               return (
 
@@ -301,8 +385,8 @@ export default function Home() {
                                   key={column}
                                   /*highlight missing cells*/
                                   className={`p-4 ${
-                                    isMissing
-                                      ? "bg-yellow-100 font-semibold text-yellow-900"
+                                    isImputed
+                                      ? "bg-green-100 font-bold text-green-900"
                                       : ""
                                   }`}
                                 >
