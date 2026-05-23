@@ -1,8 +1,10 @@
 import "./globals.css";
 
+import ReduxProvider from "@/providers/ReduxProvider";
+
 export const metadata = {
-  title: "lMissing Data Imputation Demo",
-  description: "ML-based missing value imputation",
+  title: "Missing Data Imputation",
+  description: "CSV Imputation Demo",
 };
 
 export default function RootLayout({
@@ -10,9 +12,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+    >
+
+      <body suppressHydrationWarning>
+
+        <ReduxProvider>
+          {children}
+        </ReduxProvider>
+
+      </body>
+
     </html>
   );
+
 }
