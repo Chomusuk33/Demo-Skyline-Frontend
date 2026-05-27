@@ -19,6 +19,14 @@ export interface ImputeRequest {
   model: string;
 }
 
+export interface SkylineRequest {
+  rows: Record<string, any>[];
+}
+
+export interface SkylineResponse {
+  skylineRows: Record<string, any>[];
+}
+
 export const csvApi = createApi({
   reducerPath: "csvApi",
 
@@ -61,10 +69,22 @@ export const csvApi = createApi({
 
     }),
 
+    runSkyline: builder.mutation<
+      SkylineResponse,
+      SkylineRequest
+    >({
+      query: (body) => ({
+        url: "/skyline",
+        method: "POST",
+        body,
+      }),
+    }),
+
   }),
 
 });
 
 export const {
   useUploadCsvMutation,
+  useRunSkylineMutation,
 } = csvApi;

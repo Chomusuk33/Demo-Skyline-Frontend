@@ -11,21 +11,35 @@ import {
   BrainCircuit,
   Play,
   Table,
+  Search,
 } from "lucide-react";
 
 import { useState } from "react";
 
 import {
   useUploadCsvMutation,
+  useRunSkylineMutation,
 } from "@/services/csvApi";
 
 export default function Home() {
 
+  /*
+  ========================================
+  STATES
+  ========================================
+  */
+
   const [file, setFile] =
     useState<File | null>(null);
-  
+
   const [model, setModel] =
     useState("rf");
+
+  /*
+  ========================================
+  RTK QUERY
+  ========================================
+  */
 
   const [
     uploadCsv,
@@ -35,16 +49,31 @@ export default function Home() {
     },
   ] = useUploadCsvMutation();
 
+  const [
+    runSkyline,
+    {
+      data: skylineData,
+      isLoading: skylineLoading,
+    },
+  ] = useRunSkylineMutation();
+
   /*
   ========================================
-  HANDLE UPLOAD
+  HANDLE IMPUTATION
   ========================================
   */
 
   const handleUpload =
     async () => {
 
-      if (!file) return;
+      if (!file) {
+
+        alert(
+          "Please upload CSV file"
+        );
+
+        return;
+      }
 
       try {
 
@@ -56,17 +85,47 @@ export default function Home() {
       }
       catch (error) {
 
-        console.log("ERROR:", error);
-
         console.log(
-          JSON.stringify(
-            error,
-            null,
-            2
-          )
+          "ERROR:",
+          error
         );
 
       }
+
+    };
+
+  /*
+  ========================================
+  HANDLE SKYLINE
+  ========================================
+  */
+
+  const handleSkyline =
+    async () => {
+
+      if (!data) {
+
+        alert(
+          "Run imputation first"
+        );
+
+        return;
+
+      }
+
+      try {
+
+        await runSkyline({
+          rows: data.rows,
+        }).unwrap();
+
+      }
+      catch (error) {
+
+        console.error(error);
+
+      }
+
     };
 
   /*
@@ -115,18 +174,42 @@ export default function Home() {
           MAIN LAYOUT
       ======================================== */}
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          grid
+          grid-cols-1
+          lg:grid-cols-2
+          gap-6
+        "
+      >
 
         {/* ========================================
             LEFT PANEL
         ======================================== */}
 
-        <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+        <div
+          className="
+            bg-white
+            rounded-3xl
+            shadow-sm
+            border
+            border-blue-100
+            p-6
+          "
+        >
 
-          {/* INPUT TITLE */}
+          {/* TITLE */}
           <div className="mb-6">
 
-            <h2 className="text-2xl font-bold text-blue-900">
+            <h2
+              className="
+                text-2xl
+                font-bold
+                text-blue-900
+              "
+            >
               Input
             </h2>
 
@@ -137,26 +220,53 @@ export default function Home() {
           </div>
 
           {/* ========================================
-              UPLOAD AREA
+              FILE UPLOAD
           ======================================== */}
 
           <div className="mb-6">
 
-            <label className="border-2 border-dashed border-blue-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition bg-blue-50">
+            <label
+              className="
+                border-2
+                border-dashed
+                border-blue-200
+                rounded-2xl
+                p-8
+                flex
+                flex-col
+                items-center
+                justify-center
+                cursor-pointer
+                hover:border-blue-500
+                transition
+                bg-blue-50
+              "
+            >
 
-              {/* ICON */}
               <Upload
                 size={40}
-                className="text-blue-600 mb-3"
+                className="
+                  text-blue-600
+                  mb-3
+                "
               />
 
-              {/* TEXT */}
-              <p className="font-semibold text-blue-900">
+              <p
+                className="
+                  font-semibold
+                  text-blue-900
+                "
+              >
                 Upload CSV File
               </p>
 
-              {/* FILE NAME */}
-              <p className="text-sm text-blue-600 mt-1">
+              <p
+                className="
+                  text-sm
+                  text-blue-600
+                  mt-1
+                "
+              >
 
                 {file
                   ? file.name
@@ -164,7 +274,6 @@ export default function Home() {
 
               </p>
 
-              {/* HIDDEN INPUT */}
               <input
                 type="file"
                 accept=".csv"
@@ -172,11 +281,9 @@ export default function Home() {
 
                 onChange={(e) => {
 
-                  /*
-                  lấy file đầu tiên
-                  */
-
-                  if (e.target.files?.[0]) {
+                  if (
+                    e.target.files?.[0]
+                  ) {
 
                     setFile(
                       e.target.files[0]
@@ -192,8 +299,9 @@ export default function Home() {
           </div>
 
           {/* ========================================
-            DROPDOWN MODEL SELECTION
-          ======================================== */}     
+              MODEL SELECT
+          ======================================== */}
+
           <div className="mb-6">
 
             <label
@@ -209,11 +317,13 @@ export default function Home() {
 
             <select
               value={model}
+
               onChange={(e) =>
                 setModel(
                   e.target.value
                 )
               }
+
               className="
                 w-full
                 border
@@ -241,21 +351,73 @@ export default function Home() {
           </div>
 
           {/* ========================================
-              UPLOAD BUTTON
+              RUN IMPUTATION BUTTON
           ======================================== */}
 
           <button
             onClick={handleUpload}
 
-            className="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2"
+            className="
+              w-full
+              bg-blue-600
+              hover:bg-blue-700
+              transition
+              text-white
+              py-4
+              rounded-2xl
+              font-semibold
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
           >
 
             <Play size={18} />
 
-            {/* loading text */}
-            {isLoading
-              ? "Running..."
-              : "Run Imputation"}
+            {
+              isLoading
+                ? "Running..."
+                : "Run Imputation"
+            }
+
+          </button>
+
+          {/* ========================================
+              SKYLINE BUTTON
+          ======================================== */}
+
+          <button
+            onClick={handleSkyline}
+
+            disabled={!data}
+
+            className="
+              w-full
+              mt-4
+              bg-purple-600
+              hover:bg-purple-700
+              disabled:bg-gray-300
+              disabled:cursor-not-allowed
+              transition
+              text-white
+              py-4
+              rounded-2xl
+              font-semibold
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
+          >
+
+            <Search size={18} />
+
+            {
+              skylineLoading
+                ? "Running Skyline..."
+                : "Run Skyline Query"
+            }
 
           </button>
 
@@ -265,16 +427,31 @@ export default function Home() {
             RIGHT PANEL
         ======================================== */}
 
-        <div className="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+        <div
+          className="
+            bg-white
+            rounded-3xl
+            shadow-sm
+            border
+            border-blue-100
+            p-6
+          "
+        >
 
-          {/* OUTPUT TITLE */}
+          {/* TITLE */}
           <div className="flex items-center gap-2 mb-6">
 
             <Table className="text-blue-600" />
 
             <div>
 
-              <h2 className="text-2xl font-bold text-blue-900">
+              <h2
+                className="
+                  text-2xl
+                  font-bold
+                  text-blue-900
+                "
+              >
                 Output
               </h2>
 
@@ -292,61 +469,230 @@ export default function Home() {
 
           {!data && (
 
-            <div className="h-[400px] flex items-center justify-center text-blue-400">
+            <div
+              className="
+                h-[400px]
+                flex
+                items-center
+                justify-center
+                text-blue-400
+              "
+            >
 
               Upload a CSV file to preview dataset
 
             </div>
 
           )}
+
           {/* ========================================
-              TABLE + STATISTICS
+              RESULT TABLE
           ======================================== */}
+
           {data && (
+
             <>
-              <div className="mb-4 flex flex-wrap gap-4">
 
-                {/* ROW COUNT */}
-                <div className="bg-blue-50 px-4 py-2 rounded-xl">
+              {/* STATS */}
 
-                  Rows: {data.rows.length}
+              <div
+                className="
+                  mb-4
+                  flex
+                  flex-wrap
+                  gap-4
+                "
+              >
 
+                <div
+                  className="
+                    bg-blue-50
+                    px-4
+                    py-2
+                    rounded-xl
+                  "
+                >
+                  Rows:
+                  {" "}
+                  {data.rows.length}
                 </div>
 
-                {/* COLUMN COUNT */}
-                <div className="bg-blue-50 px-4 py-2 rounded-xl">
-
-                  Columns: {data.columns.length}
-
+                <div
+                  className="
+                    bg-blue-50
+                    px-4
+                    py-2
+                    rounded-xl
+                  "
+                >
+                  Columns:
+                  {" "}
+                  {data.columns.length}
                 </div>
 
-                {/* MODEL */}
-                <div className="bg-green-50 px-4 py-2 rounded-xl">
-
+                <div
+                  className="
+                    bg-green-50
+                    px-4
+                    py-2
+                    rounded-xl
+                  "
+                >
                   Model:
                   {" "}
                   {model.toUpperCase()}
-
                 </div>
 
               </div>
 
               {/* ========================================
-                  TABLE
+                  SKYLINE RESULT
               ======================================== */}
 
-              <div className="overflow-auto rounded-2xl border border-blue-100">
+              {skylineData && (
 
-                <table className="w-full border-collapse">
-                  <thead className="bg-blue-100">
+                <div className="mb-8">
+
+                  <h3
+                    className="
+                      text-xl
+                      font-bold
+                      text-purple-700
+                      mb-4
+                    "
+                  >
+                    Skyline Results
+                  </h3>
+
+                  <div
+                    className="
+                      overflow-auto
+                      rounded-2xl
+                      border
+                      border-purple-200
+                    "
+                  >
+
+                    <table
+                      className="
+                        w-full
+                        border-collapse
+                      "
+                    >
+
+                      <thead
+                        className="
+                          bg-purple-100
+                        "
+                      >
+
+                        <tr>
+
+                          {data.columns.map(
+                            (column) => (
+
+                              <th
+                                key={column}
+                                className="
+                                  p-4
+                                  text-left
+                                "
+                              >
+
+                                {column}
+
+                              </th>
+
+                            )
+                          )}
+
+                        </tr>
+
+                      </thead>
+
+                      <tbody>
+
+                        {skylineData.skylineRows.map(
+                          (
+                            row,
+                            index
+                          ) => (
+
+                            <tr
+                              key={index}
+                              className="
+                                border-t
+                              "
+                            >
+
+                              {data.columns.map(
+                                (column) => (
+
+                                  <td
+                                    key={column}
+                                    className="p-4"
+                                  >
+
+                                    {row[column]}
+
+                                  </td>
+
+                                )
+                              )}
+
+                            </tr>
+
+                          )
+                        )}
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+
+                </div>
+
+              )}
+
+              {/* ========================================
+                  IMPUTED TABLE
+              ======================================== */}
+
+              <div
+                className="
+                  overflow-auto
+                  rounded-2xl
+                  border
+                  border-blue-100
+                "
+              >
+
+                <table
+                  className="
+                    w-full
+                    border-collapse
+                  "
+                >
+
+                  <thead
+                    className="
+                      bg-blue-100
+                    "
+                  >
+
                     <tr>
-                      {data?.columns.map(
+
+                      {data.columns.map(
                         (column) => (
 
                           <th
                             key={column}
-
-                            className="p-4 text-left text-blue-900"
+                            className="
+                              p-4
+                              text-left
+                              text-blue-900
+                            "
                           >
 
                             {column}
@@ -361,19 +707,26 @@ export default function Home() {
                   </thead>
 
                   <tbody>
-                    {data?.rows.map(
-                      (row, index) => (
+
+                    {data.rows.map(
+                      (
+                        row,
+                        index
+                      ) => (
+
                         <tr
                           key={index}
-                          className="border-t border-blue-100"
+                          className="
+                            border-t
+                            border-blue-100
+                          "
                         >
-                          {data?.columns.map(
+
+                          {data.columns.map(
                             (column) => {
-                              /*
-                              CHECK MISSING CELL
-                              */
+
                               const isImputed =
-                                data.imputedCells.some(
+                                data.imputedCells?.some(
                                   (cell) =>
                                     cell.row === index &&
                                     cell.column === column
@@ -383,14 +736,14 @@ export default function Home() {
 
                                 <td
                                   key={column}
-                                  /*highlight missing cells*/
+
                                   className={`p-4 ${
                                     isImputed
                                       ? "bg-green-100 font-bold text-green-900"
                                       : ""
                                   }`}
                                 >
-                        
+
                                   {
                                     row[column] === "" ||
                                     row[column] === null ||
@@ -398,20 +751,35 @@ export default function Home() {
                                       ? "MISSING"
                                       : row[column]
                                   }
+
                                 </td>
+
                               );
+
                             }
                           )}
+
                         </tr>
+
                       )
                     )}
+
                   </tbody>
+
                 </table>
+
               </div>
+
             </>
+
           )}
+
         </div>
+
       </div>
+
     </main>
+
   );
+
 }
